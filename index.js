@@ -51,23 +51,13 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('messageReceived')
     })
 
-    //Get User name
-    socket.on('newUser', (name) => {
-        console.log(name)
-        //users.push({name, id: socket.id})
-        //users.push(socket.id)
-        users.push(name)
-        console.log(users)
+    socket.on('writing', (user) => {
+        socket.broadcast.emit('isWriting', user)
     })
 
-
-    //Group/Room Join
-    socket.on('joinroom', (room) => {
-        socket.join(room)
-        roomName = room
+    socket.on('stopWriting', (user) => {
+        socket.broadcast.emit('stopWriting', user)
     })
-   
-    //io.in(roomName).emit('newMessage', 'New message')
 
     //Disconnected
     socket.on('disconnect', () => {

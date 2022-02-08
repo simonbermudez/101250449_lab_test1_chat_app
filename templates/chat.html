@@ -7,7 +7,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <title>Hello, world!</title>
+    <title>Socketchat</title>
     <style>
       .gradient-custom {
       /* fallback for old browsers */
@@ -31,7 +31,7 @@
     </style>
   </head>
   <body>
-    <section class="gradient-custom">
+    <section class="gradient-custom" style="min-height: 100vh;">
       <div class="container py-5">
 
       <div id="login-register-buttons">
@@ -220,8 +220,8 @@
 
               <li class="mb-3">
                 <div class="form-outline form-white">
-                  <textarea class="form-control" id="message" rows="4"></textarea>
-                  <label class="form-label" for="message">Message</label>
+                  <textarea class="form-control" id="message" rows="1" onfocus="isWriting()" onfocusout="stopWriting()"></textarea>
+                  <label class="form-label" for="message" id="writing-label"></label>
                 </div>
               </li>
               <button type="button" class="btn btn-light btn-lg btn-rounded float-end" onclick="sendMessageToRoom()">Send</button>
@@ -251,10 +251,10 @@
           .then(response => response.json())
           .then(data => {
             if (data.validated) {
-              alert("User Validated, start chatting.")
               currentUser = $('#login-username').val()
               $('#login-register-buttons').toggle()
               $('#chatroom').toggle()
+              $('#logIn').modal('toggle')
             } else {
               alert("User not validated")
             }
@@ -275,13 +275,12 @@
           .then(response => response.json())
           .then(data => {
             if (data.username) {
-              alert("User Created and logged in, start chatting.")
               currentUser = data.username
               $('#login-register-buttons').toggle()
               $('#chatroom').toggle()
-
+              $('#register').modal('toggle')
             } else {
-              alert("Error, user not created")
+              alert("Error, user already exists")
             }
           } );
       }
@@ -328,12 +327,11 @@
         `
       }
       function loadMessages() {
-        $("#chatroom-messages").empty()
-
         fetch(`/messages/room/${currentRoom}`)
           .then(response => response.json())
           .then(messages => {
             console.log(messages)
+            $("#chatroom-messages").empty()
             for (let message of messages) {
               if (message.from_user == currentUser) {
                 $("#chatroom-messages").append(renderMessageFromMyself(message.message))
@@ -367,6 +365,14 @@
           });
       }
 
+      function isWriting() {
+        client.emit('writing', currentUser)
+      } 
+
+      function stopWriting() {
+        client.emit('stopWriting', currentUser)
+      } 
+
       loadMessages()
     </script>
 
@@ -378,6 +384,14 @@
       client.on('messageReceived', () => {
         loadMessages()
       })
+
+      client.on('isWriting', (user) => {
+        $("#writing-label").html(`${user} is writing`)
+      }) 
+
+      client.on('stopWriting', (user) => {
+        $("#writing-label").html("")
+      }) 
 
       function sendMessage(){
           client.emit('messageSent')
