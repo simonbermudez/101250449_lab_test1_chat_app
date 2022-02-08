@@ -34,7 +34,7 @@ router.post('/send_private', async (req, res) => {
     }
 })
 
-router.post('/send_room/:room', async (req, res) => {
+router.post('/send_room', async (req, res) => {
     const groupMessage = new groupMessageModel(req.body)
 
     try {

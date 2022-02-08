@@ -45,26 +45,10 @@ app.get("/", (req, res) => {
 //Accept new request
 io.on('connection', (socket) => {
     console.log('Connected ')
-    
-    socket.emit('welcome', 'Welcome to Socket Programming : ' + socket.id)
-    //console.log(socket)
 
     //Custom message event to socket
-    socket.on('message', (data) => {
-        console.log(data)
-
-        //These will send to current/sending client
-        //socket.emit('newMessage', data)
-        //These will send to all connected client
-        //io.sockets.emit('newMessage', data)
-        //These will send to all except sender
-        //socket.broadcast.emit('newMessage', data)
-        
-        //Send to ROOM
-        //io.to(roomName).emit('newMessage', data)
-        console.log(`Room Name: ${data.room}`)
-        socket.broadcast.to(data.room).emit('newMessage', data.message)
-
+    socket.on('messageSent', (data) => {
+        socket.broadcast.emit('messageReceived')
     })
 
     //Get User name
