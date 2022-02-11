@@ -4,7 +4,7 @@ const http = require('http').createServer(app)
 const cors = require('cors')
 const mongoose = require('mongoose');
 
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 
 
 //Create Server Socket
